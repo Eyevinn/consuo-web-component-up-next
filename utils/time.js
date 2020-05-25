@@ -1,6 +1,6 @@
 export const humanReadableTime = (dateTime) => {
   return dateToHHMM(new Date(dateTime));
-}
+};
 
 const dateToHHMM = (date) => {
   return (
