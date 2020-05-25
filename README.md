@@ -23,7 +23,7 @@ import "@consuo/web-component-up-next";
 and use it in your html
 
 ```html
-<consuo-up-next apiUrl="" channelId="" updateInterval=""></consuo-up-next>
+<consuo-up-next api-url="" channel-id="" update-interval=""></consuo-up-next>
 ```
 
 or entirely in JavaScript, just as any other standard html element.
@@ -32,23 +32,23 @@ or entirely in JavaScript, just as any other standard html element.
 import '@consuo/web-component-up-next';
 
 const consuoUpNext = document.createElement("consuo-up-next");
-consuoUpNext.setAttribute("apiUrl", api_url);
-consuoUpNext.setAtribute("channelId", channel_id);
+consuoUpNext.setAttribute("api-url", api_url);
+consuoUpNext.setAtribute("channel-id", channel_id);
 
 container.appendChild(consuoUpNext);
 ```
 
 ## Properties
 
-- apiUrl: `string` `required`
+- api-url: `string` `required`
 
     URI to the Consuo Schedule endpoint.
 
-- channelId: `string` `required`
+- channel-id: `string` `required`
 
     The ID of the channel.
 
-- updateInterval: `number`
+- update-interval: `number`
 
     If provided the component is updated by the specified interval in seconds.
 

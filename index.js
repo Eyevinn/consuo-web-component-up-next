@@ -1,9 +1,14 @@
 import { update } from "./utils/scheduleService";
 import { humanReadableTime } from "./utils/time";
+import { ATTTRIBUTES } from "./utils/constants";
 
 export class ConsuoUpNext extends HTMLElement {
   static get observedAttributes() {
-    return ["apiUrl", "channelId", "updateInterval"];
+    return [
+      ATTTRIBUTES.API_URL,
+      ATTTRIBUTES.CHANNEL_ID,
+      ATTTRIBUTES.UPDATE_INTERVAL,
+    ];
   }
 
   constructor() {
@@ -16,12 +21,20 @@ export class ConsuoUpNext extends HTMLElement {
   }
 
   async connectedCallback() {
-    this.apiUrl = this.getAttribute("apiUrl");
-    this.channelId = this.getAttribute("channelId");
-    this.updateInterval = this.getAttribute("updateInterval");
+    this[ATTTRIBUTES.API_URL] = this.getAttribute(ATTTRIBUTES.API_URL);
+    this[ATTTRIBUTES.CHANNEL_ID] = this.getAttribute(ATTTRIBUTES.CHANNEL_ID);
+    this[ATTTRIBUTES.UPDATE_INTERVAL] = this.getAttribute(
+      ATTTRIBUTES.UPDATE_INTERVAL
+    );
 
+    /**
+     * Set up the simple styling for the element
+     */
     this.style();
-    this.update();
+    /**
+     * Call fetch data if we have the correct attributes
+     */
+    this.refresh();
   }
 
   style() {
@@ -84,25 +97,49 @@ export class ConsuoUpNext extends HTMLElement {
     return nextEventHtml;
   }
 
-  async update() {
+  async refresh() {
+    /**
+     * If a scheduler is set up since before, delete it since we will create a new one if the interval has changed
+     */
     if (this.scheduleUpdater) {
       clearInterval(this.scheduleUpdater);
     }
-    if (this.apiUrl && this.channelId) {
-      this.schedule = await update(this.apiUrl, this.channelId);
+
+    /**
+     * If we have the api url and channel id we can at least do a single schedule call
+     */
+    if (this[ATTTRIBUTES.API_URL] && this[ATTTRIBUTES.CHANNEL_ID]) {
+      this.schedule = await update(
+        this[ATTTRIBUTES.API_URL],
+        this[ATTTRIBUTES.CHANNEL_ID]
+      );
       this.render();
-      if (this.updateInterval) {
+      /**
+       * If we have an interval specified as well, we can set it up to refresh the schedule
+       */
+      if (this[ATTTRIBUTES.UPDATE_INTERVAL]) {
         this.scheduleUpdater = setInterval(async () => {
-          this.schedule = await update(this.apiUrl, this.channelId);
+          this.schedule = await update(
+            this[ATTTRIBUTES.API_URL],
+            this[ATTTRIBUTES.CHANNEL_ID]
+          );
           this.render();
-        }, this.updateInterval * 1000);
+        }, this[ATTTRIBUTES.UPDATE_INTERVAL] * 1000);
       }
     }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    /**
+     * Set the internal property to the new attribute value
+     */
     this[name] = newValue;
-    this.update();
+    /**
+     * Only refresh if we do not go from null, since that will happen in the setup
+     */
+    if (oldValue) {
+      this.refresh();
+    }
   }
 
   disconnectedCallback() {
