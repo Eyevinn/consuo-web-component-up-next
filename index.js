@@ -2,6 +2,10 @@ import { update } from "./utils/scheduleService";
 import { humanReadableTime } from "./utils/time";
 
 export class ConsuoUpNext extends HTMLElement {
+  static get observedAttributes() {
+    return ["apiUrl", "channelId", "updateInterval"];
+  }
+
   constructor() {
     super();
 
@@ -9,7 +13,6 @@ export class ConsuoUpNext extends HTMLElement {
       currentEvent: undefined,
       nextEvent: undefined,
     };
-    // <ConsuoUpNext apiUrl={"http://<SCHEDULE_API>"} channelId={"eyevinn"} updateInterval={5}/>
   }
 
   async connectedCallback() {
@@ -18,27 +21,7 @@ export class ConsuoUpNext extends HTMLElement {
     this.updateInterval = this.getAttribute("updateInterval");
 
     this.style();
-    console.log(
-      "connectedCallback",
-      this.apiUrl,
-      this.channelId,
-      this.updateInterval
-    );
-    this.schedule = await update(this.apiUrl, this.channelId);
-    this.render();
-
-    if (this.updateInterval) {
-      this.scheduleUpdater = setInterval(async () => {
-        console.log(
-          "interval",
-          this.apiUrl,
-          this.channelId,
-          this.updateInterval
-        );
-        this.schedule = await update(this.apiUrl, this.channelId);
-        this.render();
-      }, this.updateInterval * 1000);
-    }
+    this.update();
   }
 
   style() {
@@ -101,13 +84,25 @@ export class ConsuoUpNext extends HTMLElement {
     return nextEventHtml;
   }
 
-  async attributeChangedCallback() {
-    this.apiUrl = this.getAttribute("apiUrl");
-    this.channelId = this.getAttribute("channelId");
-    this.updateInterval = this.getAttribute("updateInterval");
+  async update() {
+    if (this.scheduleUpdater) {
+      clearInterval(this.scheduleUpdater);
+    }
+    if (this.apiUrl && this.channelId) {
+      this.schedule = await update(this.apiUrl, this.channelId);
+      this.render();
+      if (this.updateInterval) {
+        this.scheduleUpdater = setInterval(async () => {
+          this.schedule = await update(this.apiUrl, this.channelId);
+          this.render();
+        }, this.updateInterval * 1000);
+      }
+    }
+  }
 
-    this.schedule = await update(this.apiUrl, this.channelId);
-    this.render();
+  attributeChangedCallback(name, oldValue, newValue) {
+    this[name] = newValue;
+    this.update();
   }
 
   disconnectedCallback() {
