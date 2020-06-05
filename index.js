@@ -58,7 +58,6 @@ export class ConsuoUpNext extends HTMLElement {
 
   render() {
     let container = this.querySelector(".consuo-up-next-container");
-    console.log(container);
     if (!container) {
       container = document.createElement("div");
       container.className = "consuo-up-next-container";
