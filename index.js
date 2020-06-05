@@ -26,11 +26,6 @@ export class ConsuoUpNext extends HTMLElement {
     this[ATTTRIBUTES.UPDATE_INTERVAL] = this.getAttribute(
       ATTTRIBUTES.UPDATE_INTERVAL
     );
-
-    /**
-     * Set up the simple styling for the element
-     */
-    this.style();
     /**
      * Call fetch data if we have the correct attributes
      */
@@ -38,6 +33,8 @@ export class ConsuoUpNext extends HTMLElement {
   }
 
   style() {
+    let styleExist = this.querySelector("style");
+    if (styleExist) return;
     const style = document.createElement("style");
     style.innerHTML = `
       div.consuo-up-next-container {
@@ -61,9 +58,13 @@ export class ConsuoUpNext extends HTMLElement {
   }
 
   render() {
-    this.innerHTML = "";
-    const container = document.createElement("div");
-    container.className = "consuo-up-next-container";
+    let container = this.querySelector(".consuo-epg-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "consuo-up-next-container";
+    } else {
+      container.innerHTML = "";
+    }
 
     if (this.schedule.currentEvent) {
       container.innerHTML += this.renderCurrentEvent();
@@ -72,6 +73,7 @@ export class ConsuoUpNext extends HTMLElement {
       container.innerHTML += this.renderNextEvent();
     }
     this.appendChild(container);
+    this.style();
   }
 
   renderCurrentEvent() {
