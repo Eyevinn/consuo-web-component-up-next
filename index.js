@@ -40,14 +40,13 @@ export class ConsuoUpNext extends HTMLElement {
       div.consuo-up-next-container {
         box-sizing: border-box;
         width: 100%;
-        height: 600px;
         padding: 30px;
         box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.5);
         font-family: Helvetica;
       }
 
       .consuo-now p {
-        margin-bottom: -22px;
+
       }
 
       .consuo-now h2 {
